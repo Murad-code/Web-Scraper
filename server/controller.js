@@ -2,11 +2,10 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 
 exports.addItem = async (req, res, next) => {
-
+  const { url } = req.body;
+  const browser = await puppeteer.launch();
+  
   try {
-    const { url } = req.body;
-
-    const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(url);
     await page.screenshot({ path: 'example.png' }); // Send to DB
