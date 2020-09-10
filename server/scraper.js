@@ -1,16 +1,18 @@
-const puppeteer = require('puppeteer');
+const express = require ('express');
+const dotenv = require ('dotenv');
+const morgan = require ('morgan');
 
-(async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto('https://www.endclothing.com/gb/fred-perry-authentic-zip-hoody-j7536-248.html');
-  await page.screenshot({path: 'example.png'});
+dotenv.config({ path: './config/config.env' });
 
-  const [el] = await page.$x('//*[@id="pdp__details__final-price"]');
-  const text = await el.getProperty('textContent');
-    console.log('text: ' + text);
-    const text2 = await text.jsonValue();
-    console.log('text2: ' + text2);
+const app = express();
+app.use(express.json());
 
-  await browser.close();
-})();
+const routes = require ('./routes.js');
+app.use('/', routes);
+
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, console.log(`listening on port ${PORT}`));
