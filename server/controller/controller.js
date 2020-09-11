@@ -1,39 +1,16 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
+const { scraper } = require('./scraper.js');
 
 exports.addItem = async (req, res, next) => {
   const { url } = req.body;
-  const browser = await puppeteer.launch();
+
+  const itemData = await scraper(url);
+  res.status(200).json({
+    status: true,
+    title: itemData[0],
+    price: itemData[1],
+    imgUrl: itemData[2]
+  })
   
-  try {
-    const page = await browser.newPage();
-    await page.goto(url);
-
-    const [el] = await page.$x('//*[@id="content_inner"]/article/div[1]/div[2]/h1');
-    const text = await el.getProperty('textContent');
-    const title = await text.jsonValue();
-    
-    const [el2] = await page.$x('//*[@id="content_inner"]/article/div[1]/div[2]/p[1]');
-    const text2 = await el2.getProperty('textContent');
-    const price = await text2.jsonValue();
-    
-    const [el3] = await page.$x('//*[@id="product_gallery"]/div/div/div/img');
-    const img = await el3.getProperty('src');
-    const imgUrl = await img.jsonValue();
-    
-    const itemData = [el, el2, el3];
-
-    res.status(200).json({
-      status: true,
-      url: url,
-      message: title,
-      price: price,
-      image: imgUrl
-    })
-
-  } catch (err) {
-    console.log(err);
-  }
-
-  await browser.close();
 }

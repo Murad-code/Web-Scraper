@@ -9,7 +9,7 @@ connectDB();
 const app = express();
 app.use(express.json());
 
-const routes = require ('./routes.js');
+const routes = require ('./routes/routes.js');
 app.use('/', routes);
 
 
