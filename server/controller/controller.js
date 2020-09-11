@@ -21,6 +21,8 @@ exports.addItem = async (req, res, next) => {
     const img = await el3.getProperty('src');
     const imgUrl = await img.jsonValue();
     
+    const itemData = [el, el2, el3];
+
     res.status(200).json({
       status: true,
       url: url,
