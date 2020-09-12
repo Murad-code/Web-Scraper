@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 
-exports.scraper = async (url) => {
+exports.scraper = async (req, res, next) => {
+    const { url } = req.body;
     const browser = await puppeteer.launch();
     try {
         const page = await browser.newPage();
@@ -18,8 +19,10 @@ exports.scraper = async (url) => {
         const img = await el3.getProperty('src');
         const imgUrl = await img.jsonValue();
 
-        const itemData = [title, price, imgUrl];
-        return itemData;
+        const itemData = { title: title, price: price, imgUrl: imgUrl };
+        res.status(200).json({
+            data: itemData
+        })
 
     } catch (err) {
         console.log(err);

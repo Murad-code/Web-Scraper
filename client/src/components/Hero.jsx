@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Button from "@material-ui/core/Button";
 import SearchIcon from "@material-ui/icons/Search";
 import Grid from "@material-ui/core/Grid";
@@ -6,14 +6,13 @@ import Typography from "@material-ui/core/Typography";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import InputBase from "@material-ui/core/InputBase";
-import {
-  useGoogleLogin,
-  useGoogleLogout,
-} from "react-google-login";
+import { useGoogleLogin, useGoogleLogout } from "react-google-login";
+import { ReactComponent as GoogleIcon } from "./google.svg";
+import { UserContext } from "../context/UserState.jsx";
 
 const useStyles = makeStyles((theme) => ({
-  google: {
-    width: "100%",
+  GoogleIcon: {
+    //   fontFamily: '"Helvetica", "Arial", sans-serif'
   },
   search: {
     position: "relative",
@@ -40,16 +39,16 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   inputRoot: {
-    color: 'inherit',
+    color: "inherit",
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "20ch",
     },
   },
   heroButtons: {
@@ -60,10 +59,14 @@ const useStyles = makeStyles((theme) => ({
 export default function Hero() {
   const classes = useStyles();
   const [isSignedIn, setSignInStatus] = useState(false);
+  const [input, setInput] = useState();
   const clientId =
     "1076567886140-vh4l3s8s5sqmch2ct1cigmrrhcmpntor.apps.googleusercontent.com";
+  const { setEmail, handleSearch } = useContext(UserContext);
 
   const onSuccess = (res) => {
+    const profile = res.profileObj;
+    setEmail(profile.email);
     console.log("in success");
     setSignInStatus(true);
   };
@@ -91,16 +94,29 @@ export default function Hero() {
   });
 
   const SignInBtn = () => {
-    return <button onClick={signOut}>Sign out</button>;
+    return (
+      <Button
+        className={classes.GoogleIcon}
+        color="primary"
+        onClick={signIn}
+        startIcon={<GoogleIcon />}
+      >
+        <span>Sign in with Google</span>
+      </Button>
+    );
   };
 
   const SignOutBtn = () => {
     return (
-      <button onClick={signIn}>
+      <Button className={classes.GoogleIcon} onClick={signOut}>
         <img src="./google.svg" alt="icon" className={classes.google} />
-        <span>Sign into Google</span>
-      </button>
+        <span>Sign out</span>
+      </Button>
     );
+  };
+
+  const inputChange = (e) => {
+    setInput(e.target.value);
   };
 
   return (
@@ -131,18 +147,23 @@ export default function Hero() {
                     root: classes.inputRoot,
                     input: classes.inputInput,
                   }}
+                  onChange={inputChange}
                   inputProps={{ "aria-label": "search" }}
                 />
               </div>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary">
+              <Button
+                onClick={() => handleSearch(input)}
+                variant="contained"
+                color="primary"
+              >
                 Add
               </Button>
             </Grid>
           </Grid>
           <Grid container spacing={2} justify="center">
-            <Grid item>{isSignedIn ? <SignInBtn /> : <SignOutBtn />}</Grid>
+            <Grid item>{isSignedIn ? <SignOutBtn /> : <SignInBtn />}</Grid>
           </Grid>
         </div>
       </Container>

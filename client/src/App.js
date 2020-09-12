@@ -15,6 +15,7 @@ import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
 
 import Hero from './components/Hero.jsx';
+import UserProvider from './context/UserState.jsx';
 
 function Copyright() {
   return (
@@ -66,65 +67,68 @@ function App() {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
-      <CssBaseline />
-      <AppBar position="relative">
-        <Toolbar>
-          <BookmarkIcon className={classes.bookmarkIcon} />
-          <Typography variant="h6" color="inherit" noWrap>
-            Wish List
+    <UserProvider>
+      <React.Fragment>
+        <CssBaseline />
+        <AppBar position="relative">
+          <Toolbar>
+            <BookmarkIcon className={classes.bookmarkIcon} />
+            <Typography variant="h6" color="inherit" noWrap>
+              Wish List
           </Typography>
-        </Toolbar>
-      </AppBar>
-      <main>
-        {/* Hero unit */}
-        <div className={classes.heroContent}>
-          <Hero />
-        </div>
-        <Container className={classes.cardGrid} maxWidth="md">
-          <Grid container spacing={4}>
-            {cards.map((card) => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image="https://source.unsplash.com/random"
-                    title="Image title"
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      Heading
+          </Toolbar>
+        </AppBar>
+        <main>
+          {/* Hero unit */}
+          <div className={classes.heroContent}>
+            <Hero />
+          </div>
+          <Container className={classes.cardGrid} maxWidth="md">
+            <Grid container spacing={4}>
+              {cards.map((card) => (
+                <Grid item key={card} xs={12} sm={6} md={4}>
+                  <Card className={classes.card}>
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image="https://source.unsplash.com/random"
+                      title="Image title"
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        Heading
                     </Typography>
-                    <Typography>
-                      This is a media card. You can use this section to describe the content.
+                      <Typography>
+                        This is a media card. You can use this section to describe the content.
                     </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary">
-                      View
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small" color="primary">
+                        View
                     </Button>
-                    <Button size="small" color="primary">
-                      Edit
+                      <Button size="small" color="primary">
+                        Edit
                     </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </main>
-      {/* Footer */}
-      <footer className={classes.footer}>
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </main>
+        {/* Footer */}
+        <footer className={classes.footer}>
+          <Typography variant="h6" align="center" gutterBottom>
+            Footer
         </Typography>
-        <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-          Something here to give the footer a purpose!
+          <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
+            Something here to give the footer a purpose!
         </Typography>
-        <Copyright />
-      </footer>
-      {/* End footer */}
-    </React.Fragment>
+          <Copyright />
+        </footer>
+        {/* End footer */}
+      </React.Fragment>
+    </UserProvider>
+
 
   );
 }
