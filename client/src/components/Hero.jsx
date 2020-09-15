@@ -1,4 +1,7 @@
 import React, { useState, useContext } from "react";
+import { UserContext } from "../context/UserState.jsx";
+import { useForm } from "react-hook-form";
+
 import Button from "@material-ui/core/Button";
 import SearchIcon from "@material-ui/icons/Search";
 import Grid from "@material-ui/core/Grid";
@@ -8,7 +11,6 @@ import Container from "@material-ui/core/Container";
 import InputBase from "@material-ui/core/InputBase";
 import { useGoogleLogin, useGoogleLogout } from "react-google-login";
 import { ReactComponent as GoogleIcon } from "./google.svg";
-import { UserContext } from "../context/UserState.jsx";
 
 const useStyles = makeStyles((theme) => ({
   GoogleIcon: {
@@ -58,21 +60,21 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Hero() {
   const classes = useStyles();
-  const [isSignedIn, setSignInStatus] = useState(false);
-  const [input, setInput] = useState();
   const clientId =
     "1076567886140-vh4l3s8s5sqmch2ct1cigmrrhcmpntor.apps.googleusercontent.com";
-  const { setEmail, handleSearch } = useContext(UserContext);
+  const { setEmail, handleSearch, isSignedIn, setSignInStatus } = useContext(UserContext);
+  const { register, handleSubmit } = useForm();
 
   const onSuccess = (res) => {
     const profile = res.profileObj;
     setEmail(profile.email);
-    console.log("in success");
+  
+    // Determines whether to show sign in or sign out google button
     setSignInStatus(true);
   };
 
   const onLogoutSuccess = (res) => {
-    console.log("logout successful");
+    // console.log("logout successful");
     setSignInStatus(false);
   };
 
@@ -108,15 +110,15 @@ export default function Hero() {
 
   const SignOutBtn = () => {
     return (
-      <Button className={classes.GoogleIcon} onClick={signOut}>
-        <img src="./google.svg" alt="icon" className={classes.google} />
+      <Button
+        className={classes.GoogleIcon}
+        color="primary"
+        onClick={signOut}
+        startIcon={<GoogleIcon />}
+      >
         <span>Sign out</span>
       </Button>
     );
-  };
-
-  const inputChange = (e) => {
-    setInput(e.target.value);
   };
 
   return (
@@ -135,33 +137,33 @@ export default function Hero() {
           Insert a link below to add to your wish list!
         </Typography>
         <div className={classes.heroButtons}>
-          <Grid container spacing={2} justify="center">
-            <Grid item>
-              <div className={classes.search}>
-                <div className={classes.searchIcon}>
-                  <SearchIcon />
+          <form onSubmit={handleSubmit((data) => handleSearch(data.url))}>
+            <Grid container spacing={2} justify="center">
+              <Grid item>
+                <div className={classes.search}>
+                  <div className={classes.searchIcon}>
+                    <SearchIcon />
+                  </div>
+                  <InputBase
+                    placeholder="Search…"
+                    classes={{
+                      root: classes.inputRoot,
+                      input: classes.inputInput,
+                    }}
+                    inputRef={register}
+                    name="url"
+                    inputProps={{ "aria-label": "search" }}
+                  />
                 </div>
-                <InputBase
-                  placeholder="Search…"
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  onChange={inputChange}
-                  inputProps={{ "aria-label": "search" }}
-                />
-              </div>
+              </Grid>
+              <Grid item>
+                <Button type="submit" variant="contained" color="primary">
+                  Add
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button
-                onClick={() => handleSearch(input)}
-                variant="contained"
-                color="primary"
-              >
-                Add
-              </Button>
-            </Grid>
-          </Grid>
+          </form>
+
           <Grid container spacing={2} justify="center">
             <Grid item>{isSignedIn ? <SignOutBtn /> : <SignInBtn />}</Grid>
           </Grid>

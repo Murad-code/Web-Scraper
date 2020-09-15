@@ -1,12 +1,9 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
 const { scraper } = require('./scraper.js');
 const userSchema = require('../model/model.js');
 
 exports.addFavourite = async (req, res, next) => {
-  const { email, url } = req.body;
-
-  const favourites = await scraper(url);
+  const { email, favourites } = req.body;
 
   try {
     await userSchema.create({ email: email, favourites: favourites });
@@ -36,9 +33,8 @@ exports.addFavourite = async (req, res, next) => {
 
 exports.updateFavourites = async (req, res, next) => {
   try {
-    const { email, url } = req.body;
-    const favourites = await scraper(url);
-    
+    const { email, favourites } = req.body;
+
     const result = await userSchema.updateOne({ email: email }, { $set: { favourites: favourites } });
 
     return res.status(200).json({
@@ -66,10 +62,17 @@ exports.getFavourites = async (req, res, next) => {
   try {
     const { email } = req.body;
     const userFavourites = await userSchema.find({ email: email });
-    return res.status(200).json({
-      success: true,
-      favourites: userFavourites
-    })
+    if (userFavourites.length === 0) {
+      return res.status(200).json({
+        success: false,
+        data: userFavourites
+      })
+    } else {
+      return res.status(200).json({
+        success: true,
+        favourites: userFavourites
+      })
+    }
   } catch (err) {
     return res.status(500).json({
       success: false,

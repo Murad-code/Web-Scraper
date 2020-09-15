@@ -1,3 +1,4 @@
+const express = require('express');
 const puppeteer = require('puppeteer');
 
 exports.scraper = async (req, res, next) => {
@@ -19,7 +20,7 @@ exports.scraper = async (req, res, next) => {
         const img = await el3.getProperty('src');
         const imgUrl = await img.jsonValue();
 
-        const itemData = { title: title, price: price, imgUrl: imgUrl };
+        const itemData = { title: title, price: price, imgUrl: imgUrl, url: url };
         res.status(200).json({
             data: itemData
         })
