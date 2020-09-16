@@ -2,6 +2,9 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "../context/UserState.jsx";
 import { useForm } from "react-hook-form";
 
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+
 import Button from "@material-ui/core/Button";
 import SearchIcon from "@material-ui/icons/Search";
 import Grid from "@material-ui/core/Grid";
@@ -62,13 +65,15 @@ export default function Hero() {
   const classes = useStyles();
   const clientId =
     "1076567886140-vh4l3s8s5sqmch2ct1cigmrrhcmpntor.apps.googleusercontent.com";
-  const { setEmail, handleSearch, isSignedIn, setSignInStatus } = useContext(UserContext);
+  const { setEmail, handleSearch, isSignedIn, setSignInStatus, notification, setNotification } = useContext(
+    UserContext
+  );
   const { register, handleSubmit } = useForm();
 
   const onSuccess = (res) => {
     const profile = res.profileObj;
     setEmail(profile.email);
-  
+
     // Determines whether to show sign in or sign out google button
     setSignInStatus(true);
   };
@@ -121,6 +126,10 @@ export default function Hero() {
     );
   };
 
+  const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
+
   return (
     <div>
       <Container maxWidth="sm">
@@ -136,6 +145,12 @@ export default function Hero() {
         <Typography variant="h5" align="center" color="textSecondary" paragraph>
           Insert a link below to add to your wish list!
         </Typography>
+        <Snackbar open={notification} autoHideDuration={6000} onClose={() => setNotification(false)}>
+          <Alert onClose={() => setNotification(false)} severity="error">
+            Oops! This item is already in your favourites
+          </Alert>
+        </Snackbar>
+
         <div className={classes.heroButtons}>
           <form onSubmit={handleSubmit((data) => handleSearch(data.url))}>
             <Grid container spacing={2} justify="center">

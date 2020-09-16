@@ -12,6 +12,8 @@ export default function UserProvider({ children }) {
   const [favourites, setFavourites] = useState([]);
   const [tempFavourites, setTempFavourites] = useState([]);
 
+  const [notification, setNotification] = useState(false);
+
   const isInitialMount = useRef(true);
   const isInitialMount2 = useRef(true);
 
@@ -38,47 +40,67 @@ export default function UserProvider({ children }) {
 
   useEffect(() => {
     if (isInitialMount.current) {
-        isInitialMount.current = false;
-      } else {
-        const loadData = async () => {
-            const db = await Axios.post('/get', { email: email });
-            let curr;
-            try {
-                console.log('in try statement');
-                curr = db.data.favourites[0].favourites;
-                setUserStatus(true);
-                setTempFavourites(curr);
-            } catch (err) {
-                console.log('in catch statement');
-                setUserStatus(false);
-            }
-        };
-        loadData();
-      }
-  }, [email])
+      isInitialMount.current = false;
+    } else {
+      const loadData = async () => {
+        const db = await Axios.post("/get", { email: email });
+        let curr;
+        try {
+          console.log("try: email");
+          curr = db.data.favourites[0].favourites;
+          setUserStatus(true);
+          setTempFavourites(curr);
+        } catch (err) {
+          console.log("catch: email");
+          setUserStatus(false);
+        }
+      };
+      loadData();
+    }
+  }, [email]);
 
-  const handleSearch = async(url) => {
-    // Data after scraping the url stored as object
-    const res = await Axios.post("/scrape", { url: url });
-    const newFav = res.data.data;
-
-    const db = await Axios.post('/get', { email: email });
+  const checkUrl = async (url) => {
+    const db = await Axios.post("/get", { email: email });
     let curr;
     try {
-        curr = db.data.favourites[0].favourites;
-        console.log('curr: '+ curr);
+      curr = db.data.favourites[0].favourites;
+      // Check for duplicates here
+      for (let i = 0; i < curr.length; i++) {
+        if (url === curr[i].url) {
+          setNotification(true);
+          return null;
+        }
+      }
+      return curr;
+    } catch (err) {
+      // If there is no user data in DB then it can't be a duplicate returns undefined
+      return curr;
+    }
+  };
+
+  const handleSearch = async (url) => {
+    const preFav = await checkUrl(url);
+    // If preFav is null then the current url is a duplicate and is already in DB
+    if (preFav !== null) {
+      // Data after scraping the url stored as object
+      const res = await Axios.post("/scrape", { url: url });
+      const newFav = res.data.data;
+
+      // If preFav is not undefined then user is already stored in the DB
+      if (preFav !== undefined) {
+        console.log("preFav: " + preFav);
         setUserStatus(true);
 
-        // Check for duplicates here
-        
-
-        setFavourites(() => [newFav, ...curr]);
-    } catch (err) {
+        setFavourites(() => [newFav, ...preFav]);
+      } 
+      // preFav is undefined so user is not stored in the DB
+      else {
         setUserStatus(false);
         console.log("New user");
         setFavourites(() => [newFav]);
+      }
     }
-  }
+  };
 
   return (
     <UserContext.Provider
@@ -88,7 +110,9 @@ export default function UserProvider({ children }) {
         setEmail,
         handleSearch,
         favourites,
-        tempFavourites
+        tempFavourites,
+        notification,
+        setNotification,
       }}
     >
       {children}
